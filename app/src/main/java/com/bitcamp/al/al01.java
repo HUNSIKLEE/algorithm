@@ -1,13 +1,15 @@
 package com.bitcamp.al;
 
-import java.util.Scanner;
 
 public class al01 {
     public static void main(String[] args) {
 
-        Scanner sorce = new Scanner(System.in);
+
+
+      System.out.println("점수를 입력해주세요.");
+      java.util.Scanner sorce = new java.util.Scanner(System.in);
         int i = sorce.nextInt();
-        sorce.close();
+        sorce.nextLine();
 
         if (i <= 100 && i >= 90) {
             System.out.println("A");
