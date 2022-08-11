@@ -1,0 +1,21 @@
+=프로세스 스위칭
+	패킷마다 라우팅 테이블 참조 = CPU 과부하
+=패스트 스위칭
+	최초만 라우팅 테이블 참조 , 후에는 캐쉬메모리 참조
+=CEF(Cisco Express Forwarding)
+	라이퉁 테이블을 캐쉬 메모리에 복사하여 처리
+
+##IGP
+=디스턴스 벡터
+	방향과 metric만 확인
+=링크 스테이트
+	모든 정보 확인
+
+
+=클래스 풀 라우팅 프로토콜
+	IP를 SubnetMask를 쓸수 없어 클래스별로 구분
+=클래스 리스 라우팅 프로토콜
+	SubnetMask를 넣을수 있다.
+
+-Split-horizon
+	Distance Vector Routing Protocol의 Loop방지 알고리즘으로 수신한 Interface로 동일한 정보를 수신할수 없다.

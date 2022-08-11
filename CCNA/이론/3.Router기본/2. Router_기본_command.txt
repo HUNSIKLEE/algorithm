@@ -1,0 +1,141 @@
+                                      ### Router의 기본 Mode
+
+                ## User Mode
+
+-해당 Router에 접속은 Console , AUX , VTY(Telnet , SSH)등을 사용할수있다.
+-위의 방식으로 접속을 실시하게되면 기본적으로는 User mode로 접속이 실시된다.
+
+-CISCO Router는 Privlege level값이 1로 설정되어 있다.
+-User mode에서는 해당 장비의 기본적인 상태확인만 가능하다.
+
+
+Router>  <--- User mode (부호 > )
+
+
+
+                ## Privilege Mode(권한모드)
+
+-User mode에서 정보확인및 설정을 실시하기위해서는 상위 Mode로 전환을 실시해야한다.
+
+Router> enable
+!
+Router#  <-- Privilege mode (부호 # )
+
+-정보확인 : show , debug
+	show	: 정적인 정보 확인
+	debug	: 동적인 정보 확인
+
+-저장 : RAM => NVRAM
+	copy 
+
+-삭제 : 
+	RAM 	: reload
+	NVRAM	: erase
+	Flash	: delete
+
+-통신 및 접속
+	IP 네트워크 구성 후 ICMP 통신,
+	Telnet(TCP 23) , SSH(TCP 22)등을 사용하여 원격지의 장비로 접속 
+
+
+
+                ##  Global Mode
+
+-Router는 RAM에 설정된 Command를 기반으로 동작을 실시하는 장비.
+-Global Mode에서 설정한 모든 Command는 실시간으로 RAM에 저장된다.
+
+
+
+
+  해당 Router에 설정을 실시하기한 Mode이다.
+
+Router# configure terminal
+!
+Router(config)#   <-- Global Mode
+!
+Router(config)# exit : 이전 Mode로 전환
+
+
+---------------------------------------------------------------------------------------------------
+
+                                      ### RAM , NVRAM
+
+-Router는 RAM에 기반하는 장비로써 설정한 모든 Command는 RAM에 저장이 실시되며
+  해당 Router는 RAM에 설정되  Commnad에의해 동작을 실시한다.
+
+
+
+	   RAM                                 NVRAM
+
+-특징	휘발성 정보		비 휘발성 정보
+
+-확인 	show running-config	show startup-config
+
+-저장	실시간 저장 		copy running-config startup-config  [축약 : wr]
+
+-삭제	reload			erase startup-config
+
+-Config-register
+ .0x2102 : 장비 초기화후 NVRAM을 참조하여 RAM으로 Configuration을 Loding
+ .0x2142 : 장비 초기화후 NVRAM을 참조하지 않고 새로운 RAM으로 구성
+
+               [변경방법]
+Router(config)# config-register 0x2102
+Router(config)# config-register 0x2142
+
+
+
+
+
+
+=====================================================================================================
+
+
+
+                        ## Twisted-Pair Cable
+
+       # UTP Straight-Through Cable (Direct)
+-이종간의 장비 연결시 사용되는 Cable
+ .EX) Switch -- Router , Switch -- PC
+
+           Switch-----------Router
+	백주		백주
+	   주	   	   주
+	백초		백초
+	   파	  	   파
+	백파		백파
+	   초	   	   초
+	백빨		백빨
+	   빨	   	   빨
+
+
+
+       # UTP Crossover Cable
+-동일 장비 연결시 사용되는 Cable
+ .EX) Switch -- Switch , Hub -- Hub , Router -- Router
+
+           Switch-----------Switch
+	백주		백초
+	   주	   	   초
+	백초		백주
+	   파	  	   파
+	백파		백파
+	   초	   	   주
+	백빨		백빨
+	   빨	   	   빨
+
+
+
+       # UTP Roll-over Cable  (Console Cable)
+-Router , Switch의 Console Port로 접속시 사용되는 Cable
+
+              PC-------------Switch
+	백주		   빨
+	   주	   	백빨
+	백초		   초
+	   파	  	백파
+	백파		   파
+	   초	   	백초
+	백빨		   주
+	   빨	   	백주
+

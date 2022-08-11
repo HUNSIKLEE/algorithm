@@ -1,0 +1,392 @@
+RIPv1 셋팅시
+
+              ## R1
+
+en
+conf t
+!
+no ip domain-lo
+!
+line con 0
+ password cisco
+ login
+ logging sy
+ exec-t 0 0
+!
+line vty 0 4
+ password cisco
+ login
+!
+hostname R1
+!
+interface loopback 172
+ ip address 172.16.1.1 255.255.255.0
+!
+interface fastethernet 0/0
+ no shutdown
+ ip address 13.13.10.254 255.255.255.0
+!
+interface serial 1/0
+ no shutdown
+ encapsulation hdlc
+ bandwidth 64
+ clock rate 64000
+ ip address 13.13.12.1 255.255.255.0
+!
+
+
+
+
+
+
+
+              ## R2
+
+
+en
+conf t
+!
+no ip domain-lo
+!
+line con 0
+ password cisco
+ login
+ logging sy
+ exec-t 0 0
+!
+line vty 0 4
+ password cisco
+ login
+!
+hostname R2
+!
+interface fastethernet 0/0
+ no shutdown
+ ip address 13.13.20.254 255.255.255.0
+!
+interface serial 1/1
+ no shutdown
+ bandwidth 64
+ clock rate 64000
+ ip address 13.13.12.2 255.255.255.0
+!
+interface serial 1/0
+ no shutdown
+ encapsulation hdlc
+ bandwidth 64
+ clock rate 64000
+ ip address 13.13.23.2 255.255.255.0
+!
+
+
+
+
+
+
+
+              ## R3
+
+
+en
+conf t
+!
+no ip domain-lo
+!
+line con 0
+ password cisco
+ login
+ logging sy
+ exec-t 0 0
+!
+line vty 0 4
+ password cisco
+ login
+!
+hostname R3
+!
+interface loopback 172
+ ip address 172.16.3.3 255.255.255.0
+!
+interface fastethernet 0/0
+ no shutdown
+ ip address 13.13.30.254 255.255.255.0
+!
+interface serial 1/1
+ no shutdown
+ encapsulation hdlc
+ bandwidth 64
+ clock rate 64000
+ ip address 13.13.23.3 255.255.255.0
+!
+
+===================
+RIPv2 셋팅시
+
+
+R1
+
+
+router rip
+version 2
+no auto-summary
+network 13.0.0.0
+network 172.16.0.0
+passive-interface fastethernet 0/0
+passive-interface loopback 172
+!
+
+
+R2
+
+router rip
+version 2
+no auto-summary
+network 13.0.0.0
+passive-interface fastethernet 0/0
+!
+
+
+R3
+
+router rip
+version 2
+no auto-summary
+network 13.0.0.0
+network 172.16.0.0
+passive-interface fastethernet 0/0
+passive-interface loopback 172
+!
+
+
+
+
+
+==============================
+
+	#R1
+
+router eigrp 100
+no auto-summary
+network 13.0.0.0
+network 172.16.0.0
+passive-interface loopback 172
+passive-interface fastethernet 0/0
+!
+
+	#R2
+
+router eigrp 100
+no auto-summary
+network 13.0.0.0
+passive-interface fastethernet 0/0
+!
+
+
+	#R3
+
+router eigrp 100
+no auto-summary
+network 13.0.0.0
+network 172.16.0.0
+passive-interface loopback 172
+passive-interface fastethernet 0/0
+!
+
+===
+	##show ip route
+
+#R1
+     172.16.0.0/24 is subnetted, 2 subnets
+C       172.16.1.0 is directly connected, Loopback172
+D       172.16.3.0 [90/41152000] via 13.13.12.2, 00:00:03, Serial1/0
+     13.0.0.0/24 is subnetted, 5 subnets
+C       13.13.10.0 is directly connected, FastEthernet0/0
+C       13.13.12.0 is directly connected, Serial1/0
+D       13.13.20.0 [90/40537600] via 13.13.12.2, 00:00:07, Serial1/0
+D       13.13.23.0 [90/41024000] via 13.13.12.2, 00:00:07, Serial1/0
+D       13.13.30.0 [90/41049600] via 13.13.12.2, 00:00:04, Serial1/0
+
+
+ping 13.13.20.254 source 13.13.10.254
+ping 13.13.30.254 source 13.13.10.254
+
+
+
+#R2
+     172.16.0.0/24 is subnetted, 3 subnets
+D       172.16.1.0 [90/40640000] via 13.13.12.1, 00:00:28, Serial1/1
+C       172.16.2.0 is directly connected, Loopback172
+D       172.16.3.0 [90/40640000] via 13.13.23.3, 00:00:24, Serial1/0
+     13.0.0.0/24 is subnetted, 5 subnets
+D       13.13.10.0 [90/40537600] via 13.13.12.1, 00:00:28, Serial1/1
+C       13.13.12.0 is directly connected, Serial1/1
+C       13.13.20.0 is directly connected, FastEthernet0/0
+C       13.13.23.0 is directly connected, Serial1/0
+D       13.13.30.0 [90/40537600] via 13.13.23.3, 00:00:25, Serial1/0
+
+
+ping 13.13.10.254 source 13.13.20.254
+ping 13.13.30.254 source 13.13.20.254
+
+#R3
+
+     172.16.0.0/24 is subnetted, 2 subnets
+D       172.16.1.0 [90/41152000] via 13.13.23.2, 00:00:32, Serial1/1
+C       172.16.3.0 is directly connected, Loopback172
+     13.0.0.0/24 is subnetted, 5 subnets
+D       13.13.10.0 [90/41049600] via 13.13.23.2, 00:00:32, Serial1/1
+D       13.13.12.0 [90/41024000] via 13.13.23.2, 00:00:32, Serial1/1
+D       13.13.20.0 [90/40537600] via 13.13.23.2, 00:00:32, Serial1/1
+C       13.13.23.0 is directly connected, Serial1/1
+C       13.13.30.0 is directly connected, FastEthernet0/0
+
+ping 13.13.10.254 source 13.13.30.254
+ping 13.13.20.254 source 13.13.30.254
+
+
+	##show ip route eigrp
+
+R1
+
+     172.16.0.0/24 is subnetted, 2 subnets
+D       172.16.3.0 [90/41152000] via 13.13.12.2, 00:00:48, Serial1/0
+     13.0.0.0/24 is subnetted, 5 subnets
+D       13.13.20.0 [90/40537600] via 13.13.12.2, 00:00:52, Serial1/0
+D       13.13.23.0 [90/41024000] via 13.13.12.2, 00:00:52, Serial1/0
+D       13.13.30.0 [90/41049600] via 13.13.12.2, 00:00:48, Serial1/0
+
+R2
+
+     172.16.0.0/24 is subnetted, 3 subnets
+D       172.16.1.0 [90/40640000] via 13.13.12.1, 00:01:06, Serial1/1
+D       172.16.3.0 [90/40640000] via 13.13.23.3, 00:01:03, Serial1/0
+     13.0.0.0/24 is subnetted, 5 subnets
+D       13.13.10.0 [90/40537600] via 13.13.12.1, 00:01:06, Serial1/1
+D       13.13.30.0 [90/40537600] via 13.13.23.3, 00:01:03, Serial1/0
+
+R3
+
+     172.16.0.0/24 is subnetted, 2 subnets
+D       172.16.1.0 [90/41152000] via 13.13.23.2, 00:01:07, Serial1/1
+     13.0.0.0/24 is subnetted, 5 subnets
+D       13.13.10.0 [90/41049600] via 13.13.23.2, 00:01:07, Serial1/1
+D       13.13.12.0 [90/41024000] via 13.13.23.2, 00:01:07, Serial1/1
+D       13.13.20.0 [90/40537600] via 13.13.23.2, 00:01:07, Serial1/1
+
+	##show ip protocol
+
+
+
+** R1에 Loopback을 생성한 후 172.16.100.1/24 네트워크 주소를 할당하시오
+
+interface loopback 100
+ip address 172.16.100.1 255.255.255.0
+!
+
+
+
+
+
+**
+
+R1
+
+router eigrp 100
+no auto-summary
+network 13.13.10.0 0.0.0.255
+network 13.13.12.0 0.0.0.255
+network 172.16.1.0 0.0.0.255
+passive-interface loopback 172
+passive-interface fastethernet 0/0
+!
+
+R2
+
+router eigrp 100
+no auto-summary
+network 13.13.12.0 0.0.0.255
+network 13.13.20.0 0.0.0.255
+network 13.13.23.0 0.0.0.255
+passive-interface fastethernet 0/0
+!
+
+
+
+R3
+
+router eigrp 100
+no auto-summary
+network 13.13.23.0 0.0.0.255
+network 13.13.30.0 0.0.0.255
+network 172.16.3.0 0.0.0.255
+passive-interface loopback 172
+passive-interface fastethernet 0/0
+!
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------
+
+   # R1
+conf t
+!
+interface loopback 100
+ ip address 100.10.0.1 255.255.255.0
+ ip address 100.10.1.1 255.255.255.0 secondary
+ ip address 100.10.2.1 255.255.255.0 secondary
+ ip address 100.10.3.1 255.255.255.0 secondary
+ ip address 100.10.4.1 255.255.255.0 secondary
+ ip address 100.10.5.1 255.255.255.0 secondary
+ ip address 100.10.6.1 255.255.255.0 secondary
+ ip address 100.10.7.1 255.255.255.0 secondary
+!
+
+
+
+
+   # R3
+conf t
+!
+interface loopback 130
+ ip address 130.3.8.3 255.255.255.0
+ ip address 130.3.9.3 255.255.255.0 secondary
+ ip address 130.3.10.3 255.255.255.0 secondary
+ ip address 130.3.11.3 255.255.255.0 secondary
+ ip address 130.3.12.3 255.255.255.0 secondary
+ ip address 130.3.13.3 255.255.255.0 secondary
+ ip address 130.3.14.3 255.255.255.0 secondary
+ ip address 130.3.15.3 255.255.255.0 secondary
+!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
